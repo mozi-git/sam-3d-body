@@ -162,6 +162,13 @@ def main(args):
             use_mask=args.use_mask,
         )
 
+        # Save per-frame raw outputs as NPZ (object array) for downstream use
+        if args.save_npz:
+            npz_path = os.path.join(
+                output_folder, f"{video_name}_{frame_idx:06d}_results.npz"
+            )
+            np.savez_compressed(npz_path, outputs=np.array(outputs, dtype=object))
+
         # 2D overlay
         if len(outputs) > 0:
             vis_frame = draw_2d_keypoints(frame, outputs, visualizer)
@@ -280,6 +287,12 @@ if __name__ == "__main__":
         action="store_true",
         default=False,
         help="Use mask-conditioned prediction (segmentation mask is auto-generated from bbox)",
+    )
+    parser.add_argument(
+        "--save_npz",
+        action="store_true",
+        default=True,
+        help="Save per-frame outputs to *_results.npz for downstream retarget/export",
     )
     args = parser.parse_args()
 
