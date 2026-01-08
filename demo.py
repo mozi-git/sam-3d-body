@@ -35,7 +35,10 @@ def main(args):
     fov_path = args.fov_path or os.environ.get("SAM3D_FOV_PATH", "")
 
     # Initialize sam-3d-body model and other optional modules
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    if args.device:
+        device = torch.device(args.device)
+    else:
+        device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     model, model_cfg = load_sam_3d_body(
         args.checkpoint_path, device=device, mhr_path=mhr_path
     )
@@ -211,6 +214,13 @@ if __name__ == "__main__":
         action="store_true",
         default=False,
         help="Use mask-conditioned prediction (segmentation mask is automatically generated from bbox)",
+    )
+    parser.add_argument(
+        "--device",
+        default="",
+        type=str,
+        choices=["cpu", "cuda"],
+        help="Device to use for inference (default: auto-detect, use 'cpu' to force CPU mode)",
     )
     args = parser.parse_args()
 
