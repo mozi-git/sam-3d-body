@@ -45,7 +45,38 @@ def _hf_download(repo_id):
     local_dir = snapshot_download(repo_id=repo_id)
     return os.path.join(local_dir, "model.ckpt"), os.path.join(local_dir, "assets", "mhr_model.pt")
 
+import os
+# 导入 ModelScope 的下载函数
+from modelscope.hub.snapshot_download import snapshot_download as ms_snapshot_download
+
+def _ms_download(model_id):
+    """
+    替代 _hf_download 函数，从 ModelScope 下载模型。
+    model_id: ModelScope 的模型ID，例如 'damo/cv_sam-3d-body-dinov3' (需要确认)
+    """
+    # 从 ModelScope 下载模型仓库
+    local_dir = ms_snapshot_download(model_id=model_id, cache_dir=None)
+    
+    # 根据下载后的文件结构，构造正确的文件路径
+    # 注意：以下文件路径假设与 Hugging Face 版本结构一致，可能需要调整
+    ckpt_path = os.path.join(local_dir, "model.ckpt")
+    mhr_path = os.path.join(local_dir, "assets", "mhr_model.pt")
+    
+    # 一个更安全的做法是，如果文件名不确定，可以搜索目录
+    # import glob
+    # ckpt_files = glob.glob(os.path.join(local_dir, "*.ckpt"))
+    # if ckpt_files:
+    #     ckpt_path = ckpt_files[0]
+    
+    return ckpt_path, mhr_path
+
+def load_sam_3d_body_ms(model_id, **kwargs):
+    """
+    替代 load_sam_3d_body_hf 函数，从 ModelScope 加载模型。
+    """
+    ckpt_path, mhr_path = _ms_download(model_id)
+    return load_sam_3d_body(checkpoint_path=ckpt_path, mhr_path=mhr_path)
 
 def load_sam_3d_body_hf(repo_id, **kwargs):
-    ckpt_path, mhr_path = _hf_download(repo_id)
+    ckpt_path, mhr_path = _ms_download(repo_id)
     return load_sam_3d_body(checkpoint_path=ckpt_path, mhr_path=mhr_path)
