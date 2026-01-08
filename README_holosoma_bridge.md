@@ -73,3 +73,23 @@ python examples/robot_retarget.py \
 - `tools/export_holosoma.py` 输出 `(T, J, 3)`，长度 T 与有效帧数一致。
 - Holosoma `robot_retarget.py` 能读取你的 `data_format`；如报关节映射问题，检查/扩展 `config_types/data_type.py`。
 
+================================
+Holosoma 是什么
+Holosoma（希腊语 “whole‑body”）是一个人形机器人整套框架，帮你做两件事：
+训练：在仿真环境里，用强化学习（PPO / FastSAC）训练人形机器人（Unitree G1、Booster T1）的策略
+任务包括：行走/跑步（速度跟踪），以及 全身跟踪（whole‑body tracking）
+部署 & 改动作：
+把训练好的策略部署到真实机器人或其它仿真（sim‑to‑sim & sim‑to‑real）
+做 motion retargeting：把“人”的动捕数据（比如 LAFAN、OMOMO）转换成“机器人”的动作，同时尽量保持和地面 / 物体的交互
+核心模块结构
+仓库大致分三块（都在 src/ 下面）：
+holosoma/：训练框架
+强化学习算法（PPO、FastSAC）
+机器人模型（G1、T1）
+仿真环境（IsaacGym / IsaacSim / MJWarp）
+holosoma_inference/：推理 & 部署
+把训练好的策略在 MuJoCo 中评估，或者直接跑在真实机器人上
+统一的控制 / 推理 pipeline
+holosoma_retargeting/：动作重定向
+从 人类 motion capture 数据 → 机器人关节轨迹
+自带 LAFAN / OMOMO 数据处理、retargeting、再用这些数据训练 whole‑body tracking 策略的 demo 脚本

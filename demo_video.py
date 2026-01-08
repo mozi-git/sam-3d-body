@@ -103,7 +103,10 @@ def main(args):
     fov_path = args.fov_path or os.environ.get("SAM3D_FOV_PATH", "")
 
     # Load model
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    if args.device:
+        device = torch.device(args.device)
+    else:
+        device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     model, model_cfg = load_sam_3d_body(
         args.checkpoint_path, device=device, mhr_path=mhr_path
     )
@@ -202,10 +205,10 @@ def main(args):
 
 
 # python demo_video.py \
-#   --video_path /path/to/video.mp4 \
-#   --checkpoint_path ./checkpoints/sam-3d-body-dinov3/model.ckpt \
-#   --mhr_path ./checkpoints/sam-3d-body-dinov3/assets/mhr_model.pt \
-#   --output_folder ./output_video/demo \
+# --video_path /home/zhumeng/Documents/learn/3dbody/test.mp4 \
+# --checkpoint_path ./checkpoints/sam-3d-body-dinov3/model.ckpt \
+# --mhr_path ./checkpoints/sam-3d-body-dinov3/assets/mhr_model.pt \
+# --output_folder ./output_video/demo \
 #   --detector_name vitdet \
 #   --segmentor_name sam2 \
 #   --fov_name moge2 \
@@ -293,6 +296,13 @@ if __name__ == "__main__":
         action="store_true",
         default=True,
         help="Save per-frame outputs to *_results.npz for downstream retarget/export",
+    )
+    parser.add_argument(
+        "--device",
+        default="",
+        type=str,
+        choices=["cpu", "cuda"],
+        help="Device to use for inference (default: auto-detect, use 'cpu' to force CPU mode)",
     )
     args = parser.parse_args()
 
